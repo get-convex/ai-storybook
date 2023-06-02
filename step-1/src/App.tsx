@@ -209,8 +209,8 @@ const Illustration = ({ pageNumber }: { pageNumber: number }) => {
 };
 
 const Regenerate = ({ pageNumber }) => {
-//  const regenerate = useMutation("chapters:regenerateImage");
-  const regenerate = ({pageNumber}) => alert("not implemented");
+  //  const regenerate = useMutation("chapters:regenerateImage");
+  const regenerate = ({ pageNumber }) => alert("not implemented");
   return (
     <button
       className="btn-accent btn-xs"

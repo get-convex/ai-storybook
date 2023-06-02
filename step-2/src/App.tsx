@@ -210,10 +210,10 @@ const Illustration = ({ pageNumber }: { pageNumber: number }) => {
 
 const Regenerate = ({ pageNumber }) => {
   const backendRegenerate = useMutation("chapters:regenerateImageForPage");
-  const regenerate = ({pageNumber}) => {
+  const regenerate = ({ pageNumber }) => {
     (async () => {
-      await backendRegenerate({pageNumber});
-    })()
+      await backendRegenerate({ pageNumber });
+    })();
   };
   return (
     <button

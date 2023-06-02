@@ -26,7 +26,7 @@ type Page = {
     url: string;
     prompt: string;
   };
-}
+};
 
 type BookData = {
   pages: Page[];
@@ -46,31 +46,25 @@ const BookContext = React.createContext(null as null | BookData);
 const PictureBook = () => {
   //const updateChapter = useMutation("chapters:updateChapterContents");
   //const [pages, _version] = useQuery("chapters:getBookState") ?? [undefined, 0];
-  const [pages, setPages] = useState(
-    [{
+  const [pages, setPages] = useState([
+    {
       content: "this is page one",
       image: null,
     },
     {
       content: "this is page two",
       image: null,
-    }
-  ]
-  );
-  const updateChapter = async ({
-    pageNumber, content,
-  }) => {
+    },
+  ]);
+  const updateChapter = async ({ pageNumber, content }) => {
     let localPages = [...pages];
     if (pageNumber === localPages.length) {
-      localPages.push(
-        {content: content,
-        image: null}
-      );
+      localPages.push({ content: content, image: null });
     } else {
       localPages[pageNumber].content = content;
     }
     setPages(localPages);
-  }
+  };
 
   const addPage = () => {
     (async () => {
@@ -240,8 +234,8 @@ const Illustration = ({ pageNumber }: { pageNumber: number }) => {
 };
 
 const Regenerate = ({ pageNumber }) => {
-//  const regenerate = useMutation("chapters:regenerateImage");
-  const regenerate = ({pageNumber}) => alert("not implemented");
+  //  const regenerate = useMutation("chapters:regenerateImage");
+  const regenerate = ({ pageNumber }) => alert("not implemented");
   return (
     <button
       className="btn-accent btn-xs"
