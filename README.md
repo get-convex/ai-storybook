@@ -13,7 +13,7 @@ These project feature the following platforms and frameworks:
 
 This project was coded on a live stream. The video, which introduces the concepts gradually and explains how the project was built, is found on YouTube here:
 
-_TBD_
+[https://www.youtube.com/watch?v=4DEFIEHbC_s](https://www.youtube.com/watch?v=4DEFIEHbC_s)
 
 ## Steps
 
