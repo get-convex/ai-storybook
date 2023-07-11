@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Doc } from "../convex/_generated/dataModel";
-import { useMutation, useQuery } from "../convex/_generated/react";
+import { api } from "../convex/_generated/api";
+import { useMutation, useQuery } from "convex/react";
 import "./App.css";
 
 function App() {
@@ -38,8 +39,8 @@ type EditState = {
 const BookContext = React.createContext(null as null | BookData);
 
 const PictureBook = () => {
-  const pages = useQuery("chapters:getBookState");
-  const updateChapter = useMutation("chapters:updateChapterContents");
+  const pages = useQuery(api.chapters.getBookState);
+  const updateChapter = useMutation(api.chapters.updateChapterContents);
 
   const addPage = () => {
     (async () => {

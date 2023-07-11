@@ -1,3 +1,4 @@
+import { api } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import {
   DatabaseWriter,
@@ -7,10 +8,21 @@ import {
   query,
 } from "./_generated/server";
 
-async function bumpVersion(db: DatabaseWriter): Promise<number> {
+async function getOrCreateVersion(db: DatabaseWriter): Promise<Doc<"version">> {
   const versionDoc = await db.query("version").first();
-  const newVersion = versionDoc!.version + 1;
-  await db.patch(versionDoc!._id, {
+  if (versionDoc !== null) {
+    return versionDoc;
+  }
+  const id = await db.insert("version", {
+    version: 0,
+  });
+  return (await db.get(id))!;
+}
+
+async function bumpVersion(db: DatabaseWriter): Promise<number> {
+  const versionDoc = await getOrCreateVersion(db);
+  const newVersion = versionDoc.version + 1;
+  await db.patch(versionDoc._id, {
     version: newVersion,
   });
   return newVersion;
@@ -40,7 +52,7 @@ export const updateChapterContents = mutation(
     const version = await bumpVersion(db);
     const pages = await db.query("chapters").collect();
     for (let i = 0; i < pages.length; i++) {
-      await scheduler.runAfter(5000, "ai:populatePageImage", {
+      await scheduler.runAfter(5000, api.ai.populatePageImage, {
         pageNumber: i,
         version,
       });
@@ -65,7 +77,7 @@ export const getBookStateWithVersion = internalQuery(
       .withIndex("by_pageNumber")
       .collect();
     const versionDoc = await db.query("version").first();
-    return [versionDoc!.version, pages];
+    return [versionDoc?.version ?? 0, pages];
   }
 );
 
@@ -84,8 +96,8 @@ export const updateChapterImage = internalMutation(
       prompt: string;
     }
   ) => {
-    const versionDoc = await db.query("version").first();
-    if (version === versionDoc!.version) {
+    const versionDoc = await getOrCreateVersion(db);
+    if (version === versionDoc.version) {
       // It's still the same version of the book. Let's go!
       const existing = await db
         .query("chapters")
@@ -115,9 +127,9 @@ export const regenerateImageForPage = mutation(
       await db.patch(existing._id, {
         image: null,
       });
-      const versionDoc = await db.query("version").first();
-      const version = versionDoc!.version;
-      await scheduler.runAfter(0, "ai:populatePageImage", {
+      const versionDoc = await getOrCreateVersion(db);
+      const version = versionDoc.version;
+      await scheduler.runAfter(0, api.ai.populatePageImage, {
         pageNumber,
         version,
       });
