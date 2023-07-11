@@ -1,6 +1,13 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { api } from "../convex/_generated/api";
+import { useMutation, useQuery } from "convex/react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Doc } from "../convex/_generated/dataModel";
-import { useMutation, useQuery } from "../convex/_generated/react";
 import "./App.css";
 
 function App() {
@@ -38,8 +45,8 @@ type EditState = {
 const BookContext = React.createContext(null as null | BookData);
 
 const PictureBook = () => {
-  const pages = useQuery("chapters:getBookState");
-  const updateChapter = useMutation("chapters:updateChapterContents");
+  const pages = useQuery(api.chapters.getBookState);
+  const updateChapter = useMutation(api.chapters.updateChapterContents);
 
   const addPage = () => {
     (async () => {
@@ -51,11 +58,14 @@ const PictureBook = () => {
       addPage();
     }
   }, [addPage, pages]);
-  const updatePage = (pageNumber, content) => {
-    (async () => {
-      await updateChapter({ pageNumber, content });
-    })();
-  };
+  const updatePage = useCallback(
+    (pageNumber: number, content: string) => {
+      (async () => {
+        await updateChapter({ pageNumber, content });
+      })();
+    },
+    [updateChapter]
+  );
   const [editState, setEditState] = useState(null as null | EditState);
   return (
     <div>
@@ -209,7 +219,7 @@ const Illustration = ({ pageNumber }: { pageNumber: number }) => {
 };
 
 const Regenerate = ({ pageNumber }) => {
-  const backendRegenerate = useMutation("chapters:regenerateImageForPage");
+  const backendRegenerate = useMutation(api.chapters.regenerateImageForPage);
   const regenerate = ({ pageNumber }) => {
     (async () => {
       await backendRegenerate({ pageNumber });
@@ -218,11 +228,7 @@ const Regenerate = ({ pageNumber }) => {
   return (
     <button
       className="btn-accent btn-xs"
-      onClick={() => {
-        (async () => {
-          await regenerate({ pageNumber });
-        })();
-      }}
+      onClick={() => regenerate({ pageNumber })}
     >
       Regenerate Image
     </button>

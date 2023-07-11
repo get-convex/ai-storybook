@@ -2,6 +2,8 @@
 
 An example project showing how to make a full-stack app that integrates elements of generative AI.
 
+![](https://i.ytimg.com/vi/4DEFIEHbC_s/maxresdefault.jpg)
+
 These project feature the following platforms and frameworks:
 
 - [Replicate](https://replicate.com)
@@ -36,7 +38,7 @@ For step-1, a full stack app:
 
     cd step-1
     npm i
-    npm convex dev
+    npx convex dev
     # Finally, in a separate terminal run the frontend:
     npm run dev
 
@@ -46,7 +48,7 @@ For step-2, a full stack app using Replicate:
     # named REPLICATE_API_KEY.
     cd step-2
     npm i
-    npm convex dev
+    npx convex dev
     # Finally, in a separate terminal run the frontend:
     npm run dev
 
@@ -58,6 +60,6 @@ For step-3, a full stack app using Replicate and OpenAI:
     # named OPENAI_API_KEY.
     cd step-3
     npm i
-    npm convex dev
+    npx convex dev
     # Finally, in a separate terminal run the frontend:
     npm run dev

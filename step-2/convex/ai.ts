@@ -1,5 +1,5 @@
 "use node";
-
+import { internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { action } from "./_generated/server";
 import { Replicate } from "langchain/llms/replicate";
@@ -13,7 +13,7 @@ export const populatePageImage = action(
       `Hello from populatePageImage for page ${pageNumber} at book version ${version}`
     );
     const [currentVersion, book] = await runQuery(
-      "chapters:getBookStateWithVersion"
+      internal.chapters.getBookStateWithVersion
     );
     if (currentVersion !== version) {
       console.log("Outdated! Exiting.");
@@ -24,7 +24,7 @@ export const populatePageImage = action(
     }
     const [imageUrl, prompt] = await getPageImage(book, pageNumber);
     console.log(`Got a result! ${imageUrl}, ${prompt}`);
-    await runMutation("chapters:updateChapterImage", {
+    await runMutation(internal.chapters.updateChapterImage, {
       pageNumber,
       version,
       imageUrl,
