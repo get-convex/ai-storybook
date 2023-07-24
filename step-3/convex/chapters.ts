@@ -1,3 +1,4 @@
+import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import {
@@ -28,64 +29,63 @@ async function bumpVersion(db: DatabaseWriter): Promise<number> {
   return newVersion;
 }
 
-export const updateChapterContents = mutation(
-  async (
-    { db, scheduler },
-    { pageNumber, content }: { pageNumber: number; content: string }
-  ) => {
-    let existing = await db
+export const updateChapterContents = mutation({
+  args: { pageNumber: v.number(), content: v.string() },
+  handler: async (ctx, { pageNumber, content }) => {
+    let existing = await ctx.db
       .query("chapters")
       .withIndex("by_pageNumber", q => q.eq("pageNumber", pageNumber))
       .first();
     if (existing !== null) {
-      await db.patch(existing._id, {
+      await ctx.db.patch(existing._id, {
         content,
       });
     } else {
-      await db.insert("chapters", {
+      await ctx.db.insert("chapters", {
         pageNumber,
         content,
         image: null,
       });
     }
-    const version = await bumpVersion(db);
-    const pages = await db.query("chapters").collect();
+    const version = await bumpVersion(ctx.db);
+    const pages = await ctx.db.query("chapters").collect();
     for (let i = 0; i < pages.length; i++) {
-      await scheduler.runAfter(5000, api.ai.populatePageImage, {
+      await ctx.scheduler.runAfter(5000, api.ai.populatePageImage, {
         pageNumber: i,
         version,
       });
-      await db.patch(pages[i]._id, {
+      await ctx.db.patch(pages[i]._id, {
         image: null,
       });
     }
-  }
-);
+  },
+});
 
-export const getBookState = query(
-  async ({ db }): Promise<Doc<"chapters">[]> => {
-    const pages = await db
+export const getBookState = query({
+  args: {},
+  handler: async (ctx): Promise<Doc<"chapters">[]> => {
+    const pages = await ctx.db
       .query("chapters")
       .withIndex("by_pageNumber")
       .collect();
     return pages;
-  }
-);
+  },
+});
 
-export const getBookStateWithVersion = internalQuery(
-  async ({ db }): Promise<[number, Doc<"chapters">[]]> => {
-    const pages = await db
+export const getBookStateWithVersion = internalQuery({
+  handler: async (ctx): Promise<[number, Doc<"chapters">[]]> => {
+    const pages = await ctx.db
       .query("chapters")
       .withIndex("by_pageNumber")
       .collect();
-    const versionDoc = await db.query("version").first();
+    const versionDoc = await ctx.db.query("version").first();
     return [versionDoc?.version ?? 0, pages];
-  }
-);
+  },
+});
 
-export const updateChapterImage = internalMutation(
-  async (
-    { db },
+export const updateChapterImage = internalMutation({
+  handler: async (
+    ctx,
     {
       pageNumber,
       version,
@@ -98,14 +98,14 @@ export const updateChapterImage = internalMutation(
       prompt: string;
     }
   ) => {
-    const versionDoc = await getOrCreateVersion(db);
+    const versionDoc = await getOrCreateVersion(ctx.db);
     if (version === versionDoc!.version) {
       // It's still the same version of the book. Let's go!
-      const existing = await db
+      const existing = await ctx.db
         .query("chapters")
         .withIndex("by_pageNumber", q => q.eq("pageNumber", pageNumber))
         .first();
-      await db.patch(existing!._id, {
+      await ctx.db.patch(existing!._id, {
         image: {
           url: imageUrl,
           prompt,
@@ -116,25 +116,26 @@ export const updateChapterImage = internalMutation(
         "Not updating database. AI action was for outdated book version"
       );
     }
-  }
-);
+  },
+});
 
-export const regenerateImageForPage = mutation(
-  async ({ db, scheduler }, { pageNumber }: { pageNumber: number }) => {
-    const existing = await db
+export const regenerateImageForPage = mutation({
+  args: { pageNumber: v.number() },
+  handler: async (ctx, { pageNumber }) => {
+    const existing = await ctx.db
       .query("chapters")
       .withIndex("by_pageNumber", q => q.eq("pageNumber", pageNumber))
       .first();
     if (existing !== null) {
-      await db.patch(existing._id, {
+      await ctx.db.patch(existing._id, {
         image: null,
       });
-      const versionDoc = await getOrCreateVersion(db);
+      const versionDoc = await getOrCreateVersion(ctx.db);
       const version = versionDoc!.version;
-      await scheduler.runAfter(0, api.ai.populatePageImage, {
+      await ctx.scheduler.runAfter(0, api.ai.populatePageImage, {
         pageNumber,
         version,
       });
     }
-  }
-);
+  },
+});

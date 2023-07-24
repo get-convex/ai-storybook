@@ -12,16 +12,15 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 import { SequentialChain } from "langchain/chains";
+import { v } from "convex/values";
 
-export const populatePageImage = action(
-  async (
-    { runQuery, runMutation },
-    { pageNumber, version }: { pageNumber: number; version: number }
-  ) => {
+export const populatePageImage = action({
+  args: { pageNumber: v.number(), version: v.number() },
+  handler: async (ctx, { pageNumber, version }) => {
     console.log(
       `Hello from populatePageImage for page ${pageNumber} at book version ${version}`
     );
-    const [currentVersion, book] = await runQuery(
+    const [currentVersion, book] = await ctx.runQuery(
       internal.chapters.getBookStateWithVersion
     );
     if (currentVersion !== version) {
@@ -33,14 +32,14 @@ export const populatePageImage = action(
     }
     const [prompt, imageUrl] = await getPageImage(book, pageNumber);
     console.log(`Got a result! ${imageUrl}, ${prompt}`);
-    await runMutation(internal.chapters.updateChapterImage, {
+    await ctx.runMutation(internal.chapters.updateChapterImage, {
       pageNumber,
       version,
       imageUrl,
       prompt,
     });
-  }
-);
+  },
+});
 
 async function getPageImage(
   book: Doc<"chapters">[],
