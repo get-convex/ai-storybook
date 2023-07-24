@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "convex": "^0.19.0",
+    "convex": "^1.0.2",
     "daisyui": "^2.51.6",
     "langchain": "^0.0.88",
     "react": "^18.2.0",

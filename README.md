@@ -38,8 +38,6 @@ For step-1, a full stack app:
 
     cd step-1
     npm i
-    npx convex dev
-    # Finally, in a separate terminal run the frontend:
     npm run dev
 
 For step-2, a full stack app using Replicate:
@@ -48,8 +46,6 @@ For step-2, a full stack app using Replicate:
     # named REPLICATE_API_KEY.
     cd step-2
     npm i
-    npx convex dev
-    # Finally, in a separate terminal run the frontend:
     npm run dev
 
 For step-3, a full stack app using Replicate and OpenAI:
@@ -60,6 +56,4 @@ For step-3, a full stack app using Replicate and OpenAI:
     # named OPENAI_API_KEY.
     cd step-3
     npm i
-    npx convex dev
-    # Finally, in a separate terminal run the frontend:
     npm run dev
